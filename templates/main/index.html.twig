@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello World !{% endblock %}
+
+{% block body %}
+<span>{{ formValue }}</span>
+<form action="{{ path('submit') }}" method="post">
+    <input type="text" name="name" placeholder="name">
+    <input type="submit" value="Ok">
+</form>
+{% endblock %}

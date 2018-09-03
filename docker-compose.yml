@@ -1,0 +1,36 @@
+version: "3.1"
+services:
+    mariadb:
+      image: mariadb:10.3
+      environment: &db_env
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=db
+        - MYSQL_USER=symfony
+        - MYSQL_PASSWORD=symfony
+        - MYSQL_HOST=mariadb # required by php-fpm
+      ports:
+        - "8083:3306"
+    webserver:
+      image: nginx:alpine
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8080:80"
+      links:
+        - php-fpm
+      depends_on:
+        - php-fpm
+    php-fpm:
+      build: phpdocker/php-fpm
+      environment: *db_env
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.2/fpm/conf.d/99-overrides.ini
+      links:
+        - mariadb
+      depends_on:
+        - mariadb
+
