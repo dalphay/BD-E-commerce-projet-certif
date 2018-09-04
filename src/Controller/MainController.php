@@ -14,7 +14,7 @@ class MainController extends Controller
     public function index()
     {
         return $this->render('main/index.html.twig', [
-            'formValue' => '',
+            'formValues' => [],
         ]);
     }
 
@@ -23,9 +23,12 @@ class MainController extends Controller
      */
     public function submit(Request $request)
     {
-        $name = $request->request->get("name");
+        $formValues["name"] = $request->request->get("name");
+        $formValues["surname"] = $request->request->get("surname");
+        $formValues["gender"] = $request->request->get("gender");
+
         return $this->render('main/index.html.twig', [
-            'formValue' => $name,
+            'formValues' => $formValues,
         ]);
     }
 }

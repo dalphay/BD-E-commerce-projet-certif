@@ -1,11 +1,21 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Hello World !{% endblock %}
-
-{% block body %}
-<span>{{ formValue }}</span>
+{% extends 'base.html.twig' %} {% block title %}Hello World !{% endblock %} {% block body %}
+<ul>
+    {% for value in formValues %}
+        <li>{{ value }}</li>
+    {% endfor %}
+</ul>
 <form action="{{ path('submit') }}" method="post">
     <input type="text" name="name" placeholder="name">
+    <input type="text" name="surname" placeholder="surname">
+
+    <input type="radio" id="gender-radio" name="gender" value="female">
+    <label for="gender-radio">Female</label>
+
+    <input type="radio" id="gender-radio2" name="gender" value="male">
+    <label for="gender-radio">Male</label>
+
+    <input type="radio" id="gender-radio3" name="gender" value="genderFluid">
+    <label for="gender-radio3">Gender fluid</label>
     <input type="submit" value="Ok">
 </form>
 {% endblock %}
