@@ -24,18 +24,19 @@ class ShoppingCart
     private $total;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\User", mappedBy="shoppingCart", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\User", mappedBy="shoppingCart")
      */
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ToBuy", mappedBy="shoppingCart", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\ToBuy", mappedBy="shoppingCart", orphanRemoval=true, cascade={"persist"})
      */
     private $toBuys;
 
     public function __construct()
     {
         $this->toBuys = new ArrayCollection();
+        $this->total = 0;
     }
 
     public function getId()
@@ -99,6 +100,37 @@ class ShoppingCart
                 $toBuy->setShoppingCart(null);
             }
         }
+
+        return $this;
+    }
+
+    public function addOrIncrementToBuy(Product $product, Int $qty)
+    {
+        $match = false;
+        foreach ($this->getToBuys() as $value) {
+            if ($value->getProduct()->getId() == $product->getId()) {
+                $value->setQty($value->getQty() + $qty);
+                $match = true;
+            }
+        }
+
+        if (!$match) {
+            $toBuy = new ToBuy();
+            $toBuy->setProduct($product);
+            $toBuy->setQty($qty);
+            $this->addToBuy($toBuy);
+        }
+
+        return $this;
+    }
+
+    public function computeTotal()
+    {
+        $total = 0;
+        foreach ($this->getToBuys() as $value) {
+            $total += $value->getQty() * $value->getProduct()->getPrice();
+        }
+        $this->setTotal($total);
 
         return $this;
     }

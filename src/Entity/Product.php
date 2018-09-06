@@ -38,9 +38,12 @@ class Product
      */
     private $toBuys;
 
-    public function __construct()
+    public function __construct(String $name = "", String $description = "", Int $price = 0)
     {
         $this->toBuys = new ArrayCollection();
+        $this->name = $name;
+        $this->description = $description;
+        $this->price = $price;
     }
 
     public function getId()
