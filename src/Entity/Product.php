@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Product
 {
+    const IMAGES_PATH = 'images/products/';
+    const MIME_TYPES = ['image/jpeg', 'image/png'];
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -38,12 +40,22 @@ class Product
      */
     private $toBuys;
 
-    public function __construct(String $name = "", String $description = "", Int $price = 0)
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $imageURI;
+
+    public function __construct(String $name = "", String $description = "", Int $price = 0, String $base64Image = "")
     {
         $this->toBuys = new ArrayCollection();
         $this->name = $name;
         $this->description = $description;
         $this->price = $price;
+        $this->imageURI = "";
+        if ($base64Image !== "")
+        {
+            $this->setBase64Image($base64Image);
+        }
     }
 
     public function getId()
@@ -51,36 +63,36 @@ class Product
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName() : ? string
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name) : self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription() : ? string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(string $description) : self
     {
         $this->description = $description;
 
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice() : ? int
     {
         return $this->price;
     }
 
-    public function setPrice(int $price): self
+    public function setPrice(int $price) : self
     {
         $this->price = $price;
 
@@ -90,12 +102,12 @@ class Product
     /**
      * @return Collection|ToBuy[]
      */
-    public function getToBuys(): Collection
+    public function getToBuys() : Collection
     {
         return $this->toBuys;
     }
 
-    public function addToBuy(ToBuy $toBuy): self
+    public function addToBuy(ToBuy $toBuy) : self
     {
         if (!$this->toBuys->contains($toBuy)) {
             $this->toBuys[] = $toBuy;
@@ -105,7 +117,7 @@ class Product
         return $this;
     }
 
-    public function removeToBuy(ToBuy $toBuy): self
+    public function removeToBuy(ToBuy $toBuy) : self
     {
         if ($this->toBuys->contains($toBuy)) {
             $this->toBuys->removeElement($toBuy);
@@ -115,6 +127,53 @@ class Product
             }
         }
 
+        return $this;
+    }
+
+    public function setImageURI(String $imageURI)
+    {
+        $this->imageURI = $imageURI;
+
+        return $this;
+    }
+
+    public function getImageURI()
+    {
+        return $this->imageURI;
+    }
+
+    public function setBase64Image(String $base64Image)
+    {
+        // split the string on commas
+        // $data[ 0 ] == "data:image/png;base64"
+        // $data[ 1 ] == <actual base64 string>
+        $data = explode(',', $base64Image);
+        // we could add validation here with ensuring count( $data ) > 1
+        $decodedImage = base64_decode($data[1]);
+        // open the output file for writing
+        $file = fopen('/tmp/tempImage', 'wb');
+        fwrite($file, $decodedImage);
+        // clean up the file resource
+        fclose($file);
+
+        $imageType = mime_content_type('/tmp/tempImage');
+        // if mime type is allowed
+        if (in_array($imageType, self::MIME_TYPES)){
+            // if an image is already attached to the product ...
+            if ($this->imageURI !== "") {
+                // ... delete it
+                unlink($this->imageURI);
+            }
+
+            $filename = md5(uniqid());
+            preg_match('/.*\/(.*)/', $imageType, $matches);
+            $extension = $matches[1];
+            $filePath = self::IMAGES_PATH . $filename . '.' . $extension;
+
+            rename('/tmp/tempImage', $filePath);
+            // save imageURI
+            $this->imageURI = $filePath;
+        }
         return $this;
     }
 }

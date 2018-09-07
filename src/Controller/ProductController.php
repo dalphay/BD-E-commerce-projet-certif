@@ -64,8 +64,9 @@ class ProductController extends Controller
         $manager = $this->getDoctrine()->getManager();
 
         $content = json_decode($request->getContent(), true);
+        dump($content);
 
-        $product = new Product($content["name"], $content["description"], $content["price"]);
+        $product = new Product($content["name"], $content["description"], $content["price"], $content["base64Image"]);
 
         $manager->persist($product);
         $manager->flush();
@@ -96,7 +97,7 @@ class ProductController extends Controller
     }
 
     /**
-     * @Route("/{product}", name="updateProduct", methods={"PUT"})
+     * @Route("/{product}", name="updateProduct", methods={"PATCH"})
      */
     public function update(Product $product, Request $request)
     {
@@ -104,9 +105,9 @@ class ProductController extends Controller
 
         $content = json_decode($request->getContent(), true);
 
-        $product->setName($content["name"]);
-        $product->setDescription($content["description"]);
-        $product->setPrice($content["price"]);
+        foreach ($content as $key => $value) {
+            $product->{'set'.ucfirst($key)}($value);
+        }
 
         $manager->persist($product);
         $manager->flush();
