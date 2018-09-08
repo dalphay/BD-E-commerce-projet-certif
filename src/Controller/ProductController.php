@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Repository\ProductRepository;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -57,6 +58,7 @@ class ProductController extends Controller
     }
 
     /**
+     * @IsGranted("ROLE_ADMIN", statusCode=403, message="You must be a logged admin.")
      * @Route("/", name="newProduct", methods={"POST"})
      */
     public function new(Request $request)
@@ -64,7 +66,6 @@ class ProductController extends Controller
         $manager = $this->getDoctrine()->getManager();
 
         $content = json_decode($request->getContent(), true);
-        dump($content);
 
         $product = new Product($content["name"], $content["description"], $content["price"], $content["base64Image"]);
 
@@ -80,6 +81,7 @@ class ProductController extends Controller
     }
 
     /**
+     * @IsGranted("ROLE_ADMIN", statusCode=403, message="You must be a logged admin.")
      * @Route("/{product}", name="deleteProduct", methods={"DELETE"})
      */
     public function del(Product $product)
@@ -97,6 +99,7 @@ class ProductController extends Controller
     }
 
     /**
+     * @IsGranted("ROLE_ADMIN", statusCode=403, message="You must be a logged admin.")
      * @Route("/{product}", name="updateProduct", methods={"PATCH"})
      */
     public function update(Product $product, Request $request)

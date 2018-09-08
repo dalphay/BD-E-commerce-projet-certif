@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,10 +28,12 @@ class ShoppingCartController extends Controller
         $this->serializer = new Serializer($normalizers, $encoders);
     }
     /**
-     * @Route("/user/{user}/shopping_cart", name="getShoppingCart", methods={"GET"})
+     * @IsGranted("ROLE_USER", statusCode=403, message="You must be logged.")
+     * @Route("/user/shopping_cart", name="getShoppingCart", methods={"GET"})
      */
-    public function one(User $user)
+    public function one()
     {
+        $user = $this->getUser();
         $shoppingCart = $user->getShoppingCart();
 
         $json = $this->serializer->serialize($shoppingCart, "json");
@@ -42,10 +45,13 @@ class ShoppingCartController extends Controller
     }
 
     /**
-     * @Route("/user/{user}/shopping_cart/product/{product}", name="addToShoppingCart", methods={"POST"})
+     * @IsGranted("ROLE_USER", statusCode=403, message="You must be logged.")
+     * @Route("/user/shopping_cart/product/{product}", name="addToShoppingCart", methods={"POST"})
      */
-    public function add(User $user, Product $product, Request $request)
+    public function add(Product $product, Request $request)
     {
+        $user = $this->getUser();
+
         $manager = $this->getDoctrine()->getManager();
         $shoppingCart = $user->getShoppingCart();
         $content = json_decode($request->getContent(), true);
@@ -65,10 +71,13 @@ class ShoppingCartController extends Controller
     }
 
     /**
-     * @Route("/user/{user}/shopping_cart/product/{product}", name="removeFromShoppingCart", methods={"DELETE"})
+     * @IsGranted("ROLE_USER", statusCode=403, message="You must be logged.")
+     * @Route("/user/shopping_cart/product/{product}", name="removeFromShoppingCart", methods={"DELETE"})
      */
-    public function del(User $user, Product $product)
+    public function del(Product $product)
     {
+        $user = $this->getUser();
+
         $manager = $this->getDoctrine()->getManager();
         $shoppingCart = $user->getShoppingCart();
 

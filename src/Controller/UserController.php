@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Entity\User;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -10,6 +11,8 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Entity\ShoppingCart;
 
 class UserController extends Controller
 {
@@ -26,10 +29,13 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{user}", name="oneUser", methods={"GET"})
+     * @IsGranted("ROLE_USER", statusCode=403, message="You must be logged.")
+     * @Route("/user", name="oneUser", methods={"GET"})
      */
-    public function one(User $user)
+    public function one()
     {
+        $user = $this->getUser();
+
         $json = $this->serializer->serialize($user, "json");
 
         $response = new Response($json);
@@ -39,19 +45,23 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user", name="addUser", methods={"POST"})
+     * @Route("/user", name="register", methods={"POST"})
      */
-    public function new(Request $request)
+    public function register(Request $request, UserPasswordEncoderInterface $encoder)
     {
         $manager = $this->getDoctrine()->getManager();
         $content = json_decode($request->getContent(), true);
 
-        $user = new User();
-        $user->setName($content["name"]);
-        $user->setSurname($content["surname"]);
-        $user->setGender($content["gender"]);
-        $user->setEmail($content["email"]);
-        $user->setAddress($content["address"]);
+        $user = new User(
+            $content["name"],
+            $content["surname"],
+            $content["address"],
+            $content["gender"],
+            $content["email"]            
+        );
+
+        $encoded = $encoder->encodePassword($user, $content["password"]);
+        $user->setPassword($encoded);
 
         $shoppingCart = new ShoppingCart();
         $user->setShoppingCart($shoppingCart);
@@ -59,7 +69,7 @@ class UserController extends Controller
         $manager->persist($user);
         $manager->flush();
 
-        $json = $this->serializer->serialize($user, "json");
+        $json = $this->serializer->serialize($user, 'json');
 
         $response = new Response($json);
         $response->headers->set('Content-Type', 'application/json');
@@ -68,18 +78,24 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/{user}", name="updateUser", methods={"PUT"})
+     * @IsGranted("ROLE_USER", statusCode=403, message="You must be logged.")
+     * @Route("/user", name="updateUser", methods={"PATCH"})
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request)
     {
+        $user = $this->getUser();
+
         $manager = $this->getDoctrine()->getManager();
         $content = json_decode($request->getContent(), true);
 
-        $user->setName($content["name"]);
-        $user->setSurname($content["surname"]);
-        $user->setGender($content["gender"]);
-        $user->setEmail($content["email"]);
-        $user->setAddress($content["address"]);
+        foreach ($content as $key => $value) {
+            $user->{'set'.ucfirst($key)}($value);
+        }
+
+        if ($user->getPassword() == $content["password"]) {
+            $encoded = $encoder->encodePassword($user, $content["password"]);
+            $user->setPassword($encoded);
+        }
 
         $manager->persist($user);
         $manager->flush();
