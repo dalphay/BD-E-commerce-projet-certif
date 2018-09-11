@@ -1,4 +1,5 @@
 security:
+    # https://symfony.com/doc/current/security.html#c-encoding-the-user-s-password
     encoders:
         App\Entity\User:
             algorithm: bcrypt
@@ -8,8 +9,10 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+    # https://symfony.com/doc/current/security.html#hierarchical-roles
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
+    # https://symfony.com/doc/current/security.html#initial-security-yaml-setup-authentication
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -18,26 +21,11 @@ security:
             pattern: ^/
             provider: db_provider
             anonymous: true
+            # https://symfony.com/doc/current/security/json_login_setup.html
             json_login:
                 check_path: login
                 username_path: email
                 password_path: password
+            # https://symfony.com/doc/current/security.html#logging-out
             logout:
                 path: logout
-
-            # activate different ways to authenticate
-
-            # http_basic: true
-            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: true
-            # https://symfony.com/doc/current/security/form_login_setup.html
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
-    # access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
-        # - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-
-

@@ -164,12 +164,14 @@ class Product
                 // ... delete it
                 unlink($this->imageURI);
             }
-
+            // generate a unique filename
             $filename = md5(uniqid());
+            // get extension e.g png
             preg_match('/.*\/(.*)/', $imageType, $matches);
             $extension = $matches[1];
+            // construct file path + name + extension string
             $filePath = self::IMAGES_PATH . $filename . '.' . $extension;
-
+            // move from template to our storage folder
             rename('/tmp/tempImage', $filePath);
             // save imageURI
             $this->imageURI = $filePath;

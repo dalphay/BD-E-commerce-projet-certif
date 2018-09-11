@@ -5,6 +5,9 @@
 1. `docker-compose up`
 1. go to http://localhost:8080
 
+## App documentation
+Checkout e-commerce's app documentation [here](doc.md)
+
 ## Database settings
 
 You can connect to MySQL with a client (like MySQL Workbench) with these settings :

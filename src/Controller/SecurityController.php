@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SecurityController extends Controller
 {
+    const NORMALIZER_FORMAT = ['attributes' => ['id', 'name', 'surname', 'gender', 'address', 'email']];
+
     /**
      * @Route("/user/login", name="login", methods={"POST"})
      * https://symfony.com/doc/current/security/json_login_setup.html
@@ -25,18 +27,30 @@ class SecurityController extends Controller
          * {"username": "toto", "password": "S0l!dP455w0rd"}
          */
 
+        // get current user based on session
         $user = $this->getUser();
+
+        // https://symfony.com/doc/current/components/serializer.html#usage
 
         $encoders = array(new JsonEncoder());
         $normalizers = array(new ObjectNormalizer());
+        // we make sure that encoder doesn't enter in an infinite loop by limiting recursive depth of instances
+        // https://symfony.com/doc/current/components/serializer.html#handling-circular-references
         $normalizers[0]->setCircularReferenceHandler(function ($object) {
             return $object->getId();
         });
+
         $this->serializer = new Serializer($normalizers, $encoders);
 
-        $json = $this->serializer->serialize($user, 'json');
+        // we can customize the data format returned by mapping it in an array (here NORMALIZER_FORMAT)
+        // see https://symfony.com/doc/current/components/serializer.html#selecting-specific-attributes
+        $data = $this->serializer->normalize($user, null, self::NORMALIZER_FORMAT);
+        // convert formated datas to json using serialize()
+        $json = $this->serializer->serialize($data, 'json');
 
+        // prepare response object
         $response = new Response($json);
+        // setup response headers
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;

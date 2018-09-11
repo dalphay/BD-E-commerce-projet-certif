@@ -29,7 +29,7 @@ class ShoppingCart
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ToBuy", mappedBy="shoppingCart", orphanRemoval=true, cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\ToBuy", mappedBy="shoppingCart", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $toBuys;
 
@@ -106,6 +106,7 @@ class ShoppingCart
 
     public function addOrIncrementToBuy(Product $product, Int $qty)
     {
+        //  search for already existing toBuy for thos product
         $match = false;
         foreach ($this->getToBuys() as $value) {
             if ($value->getProduct()->getId() == $product->getId()) {
@@ -114,6 +115,7 @@ class ShoppingCart
             }
         }
 
+        // if no toBuy are found, creating a new one
         if (!$match) {
             $toBuy = new ToBuy();
             $toBuy->setProduct($product);

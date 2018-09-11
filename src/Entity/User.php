@@ -45,11 +45,7 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\Column(type="string", length=64)
      */
-    private $password;
-
-    // DO NOT MAP PLAIN PASSWORD INSIDE DB,
-    // this property just stores it temporarly.
-    private $plainPassword;
+    private $password; // the password MUST be encoded before setting it !
 
     /**
      * @ORM\Column(type="string", length=24)
@@ -62,6 +58,7 @@ class User implements UserInterface, \Serializable
      */
     private $shoppingCart;
 
+    // we must give a default value for each constructor params to allow symfony instanciating it.
     public function __construct(String $name = "", String $surname = "", String $address = "", Int $gender = null, String $email = "") {
         $this->name = $name;
         $this->surname = $surname;
@@ -140,7 +137,8 @@ class User implements UserInterface, \Serializable
 
     public function getRoles()
     {
-        return array($this->role); // symfony needs an array of roles, so we can have multiple roles by users.
+        // to work, symfony needs an array of roles which allow us to have multiple roles by users.
+        return array($this->role);
     }
 
     public function setRole(String $role)
@@ -176,6 +174,7 @@ class User implements UserInterface, \Serializable
     {
     }
 
+    // serialize and unSerialize are specifying to php how to write/read session token
     public function serialize()
     {
         return serialize(array(
