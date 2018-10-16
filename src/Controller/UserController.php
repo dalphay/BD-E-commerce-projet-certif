@@ -3,14 +3,16 @@
 namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Entity\User;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Entity\ShoppingCart;
 
 
 class UserController extends Controller
@@ -34,7 +36,7 @@ class UserController extends Controller
         $this->serializer = new Serializer($normalizers, $encoders);
     }
     /**
-     * @Route("/user", name="register", methods={"POST"})
+     * @Route("/user", name="register", methods={"GET"})
      */
     public function register(Request $request, UserPasswordEncoderInterface $encoder)
     {
@@ -45,13 +47,20 @@ class UserController extends Controller
 
         // creating new Us/userer
         $user = new User(
-            $content["email"]
+            "alpha@yahoo.fr"
         );
 
         // encode and save password
-        $encoded = $encoder->encodePassword($user, $content["password"]);
+        $encoded = $encoder->encodePassword($user, "1234");
+        $user->setAddress("123 rue alexandre");
+        $user->setGender(1);
+        $user->setSurname("diallo");
+        $user->setName('alpha');
+        $user->setEmail('korka@gmail.com');
         $user->setPassword($encoded);
-
+         // create the associated shopping cart
+         $test = new ShoppingCart();
+         $user->setShoppingCart($test);
         // telling to manager to persist our entity instance in database
         $manager->persist($user);
         // executing SQL
