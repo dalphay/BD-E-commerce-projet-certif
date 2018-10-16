@@ -45,13 +45,26 @@ class Product
      */
     private $imageURI;
 
-    public function __construct(String $name = "", String $description = "", Int $price = 0, String $base64Image = "")
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $marque;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $category;
+
+    public function __construct(String $name = "", String $description = "", Int $price = 0, String $marque = "", String $category = "", String $base64Image = "")
     {
         $this->toBuys = new ArrayCollection();
         $this->name = $name;
         $this->description = $description;
         $this->price = $price;
         $this->imageURI = "";
+        $this->marque = $marque;
+        $this->category = $category;
+
         if ($base64Image !== "")
         {
             $this->setBase64Image($base64Image);
@@ -176,6 +189,30 @@ class Product
             // save imageURI
             $this->imageURI = $filePath;
         }
+        return $this;
+    }
+
+    public function getMarque(): ?string
+    {
+        return $this->marque;
+    }
+
+    public function setMarque(string $marque): self
+    {
+        $this->marque = $marque;
+
+        return $this;
+    }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category): self
+    {
+        $this->category = $category;
+
         return $this;
     }
 }

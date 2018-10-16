@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -18,56 +18,23 @@ class User implements UserInterface, \Serializable
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=24)
-     */
-    private $name;
-
-    /**
-     * @ORM\Column(type="string", length=64)
-     */
-    private $surname;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $address;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $gender;
-
-    /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string", length=255)
      */
     private $email;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=255)
      */
-    private $password; // the password MUST be encoded before setting it !
+    private $password;
 
     /**
-     * @ORM\Column(type="string", length=24)
+     * @ORM\Column(type="string", length=255)
      */
     private $role;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\ShoppingCart", inversedBy="user", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $shoppingCart;
-
-    // we must give a default value for each constructor params to allow symfony instanciating it.
-    public function __construct(String $name = "", String $surname = "", String $address = "", Int $gender = null, String $email = "") {
-        $this->name = $name;
-        $this->surname = $surname;
-        $this->address = $address;
-        $this->gender = $gender;
+    public function __construct(String $email = ""){
         $this->email = $email;
         $this->role = "ROLE_USER";
-
-        return $this;
     }
 
     public function getId()
@@ -75,62 +42,31 @@ class User implements UserInterface, \Serializable
         return $this->id;
     }
 
-    public function getName() : ? string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name) : self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getSurname() : ? string
-    {
-        return $this->surname;
-    }
-
-    public function setSurname(string $surname) : self
-    {
-        $this->surname = $surname;
-
-        return $this;
-    }
-
-    public function getAddress() : ? string
-    {
-        return $this->address;
-    }
-
-    public function setAddress(string $address) : self
-    {
-        $this->address = $address;
-
-        return $this;
-    }
-
-    public function getGender() : ? int
-    {
-        return $this->gender;
-    }
-
-    public function setGender(int $gender) : self
-    {
-        $this->gender = $gender;
-
-        return $this;
-    }
-
-    public function getEmail() : ? string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email) : self
+    public function getUsername(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
 
         return $this;
     }
@@ -141,67 +77,23 @@ class User implements UserInterface, \Serializable
         return array($this->role);
     }
 
-    public function setRole(String $role)
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): self
     {
         $this->role = $role;
 
         return $this;
     }
 
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    public function setPassword($password)
-    {
-        $this->password = $password;
-        
-        return $this;
-    }
-
-    public function getSalt()
-    {
+    public function getSalt(){
         return null;
     }
 
-    public function getUsername()
-    {
-        return $this->email;
-    }
-
-    public function eraseCredentials()
-    {
-    }
-
-    // serialize and unSerialize are specifying to php how to write/read session token
-    public function serialize()
-    {
-        return serialize(array(
-            $this->id,
-            $this->email,
-            $this->password,
-        ));
-    }
-
-    public function unserialize($serialized)
-    {
-        list(
-            $this->id,
-            $this->email,
-            $this->password,
-        ) = unserialize($serialized, array('allowed_classes' => false));
-    }
-
-    public function getShoppingCart() : ? ShoppingCart
-    {
-        return $this->shoppingCart;
-    }
-
-    public function setShoppingCart(ShoppingCart $shoppingCart) : self
-    {
-        $this->shoppingCart = $shoppingCart;
-
-        return $this;
+    public function eraseCredentials(){
+        return null;
     }
 }

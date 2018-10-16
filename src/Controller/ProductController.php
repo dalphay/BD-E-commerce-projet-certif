@@ -36,9 +36,30 @@ class ProductController extends Controller
     }
 
     /**
-     * @Route("/product", name="allProducts", methods={"GET"})
+     * @Route("/product", name="allProduct", methods={"GET"})
      */
     public function all(ProductRepository $repo)
+    {
+        // get all products by calling findAll() on products repository
+        $products = $repo->findAll();
+
+        // we can customize the data format returned by mapping it in an array (here NORMALIZER_FORMAT)
+        // see https://symfony.com/doc/current/components/serializer.html#selecting-specific-attributes
+        $data = $this->serializer->normalize($products, null, self::NORMALIZER_FORMAT);
+        // convert formated datas to json using serialize()
+        $json = $this->serializer->serialize($data, 'json');
+
+        // prepare response object
+        $response = new Response($json);
+        // setup response headers
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+    /**
+     * @Route("/product", name="allProduct", methods={"GET"})
+     */
+    public function getAll(ProductRepository $repo)
     {
         // get all products by calling findAll() on products repository
         $products = $repo->findAll();
@@ -76,12 +97,30 @@ class ProductController extends Controller
 
         return $response;
     }
+    /**
+     *
+     * @Route("/product", name="newProduct", methods={"POST"})
+     * by mentioning `{object}` inside a route, we tell to symfony to automatically instanciate an object from its id
+     */
+    public function addAll(Request $request){
 
+    $response->headers->set('Content-Type', 'application/json');
+    // Allow all websites
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    // Or a predefined website
+    //$response->headers->set('Access-Control-Allow-Origin', 'https://jsfiddle.net/');
+    // You can set the allowed methods too, if you want    //$response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');    
+    dump($request);
+    
+    return $response;
+        
+    }
     /**
      * @IsGranted("ROLE_ADMIN", statusCode=403, message="You must be a logged admin.")
      * @Route("/product", name="newProduct", methods={"POST"})
      * by mentioning `{object}` inside a route, we tell to symfony to automatically instanciate an object from its id
      */
+   
     public function new(Request $request)
     {
         // the manager allow us to persist entity instance to database
