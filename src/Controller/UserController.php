@@ -55,7 +55,7 @@ class UserController extends Controller
         $user->setAddress("123 rue alexandre");
         $user->setGender(1);
         $user->setSurname("diallo");
-        $user->setName('alpha');
+        $user->setName('korka');
         $user->setEmail('korka@gmail.com');
         $user->setPassword($encoded);
          // create the associated shopping cart
